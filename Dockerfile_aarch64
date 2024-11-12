@@ -1,5 +1,5 @@
 # Base image from NVIDIA for Jetson (includes CUDA and TensorRT support)
-FROM nvcr.io/nvidia/l4t-tensorrt:r8.6.2-devel
+FROM nvcr.io/nvidia/l4t-tensorrt:r8.5.2.2-devel
 
 ENV DEBIAN_FRONTEND noninteractive
 ENV TZ=Asia/Tokyo
@@ -19,6 +19,12 @@ RUN mkdir -p build && cd build && cmake .. && make -j && make install
 
 # Build app
 WORKDIR /opt/app
+RUN mkdir -p build && cd build && cmake .. && make -j 
+
+# ONNX->TRT Engine
+WORKDIR /opt/app/build
+RUN ./trt-lightnet --flagfile ../configs/CoMLOps-Reference-Vision-Detection-Model-v0.1.2.txt --precision fp16
+
 
 # Default CMD
 ENTRYPOINT ["/opt/app/docker-entrypoint.sh"]
